@@ -1,0 +1,109 @@
+{
+  "identifier" : "Grace-LOCAL-STOREKIT",
+  "nonRenewingSubscriptions" : [
+    {
+      "displayPrice" : "0.99",
+      "familyShareable" : false,
+      "internalID" : "1000000001",
+      "localizations" : [
+        {
+          "description" : "One-time access to Grace Pro for 24 hours. This pass does not renew automatically.",
+          "displayName" : "Grace Pro Daily Pass",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "Grace Proを24時間利用できる買い切りパスです。自動更新されません。",
+          "displayName" : "Grace Pro デイリーパス",
+          "locale" : "ja_JP"
+        }
+      ],
+      "productID" : "llc.ether.grace.pro.daily",
+      "referenceName" : "Grace Pro Daily Pass",
+      "type" : "NonRenewingSubscription"
+    }
+  ],
+  "products" : [
+  ],
+  "settings" : {
+    "_locale" : "en_US",
+    "_storefront" : "USA"
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "Grace-PRO",
+      "localizations" : [
+        {
+          "locale" : "en_US",
+          "name" : "Grace Pro"
+        },
+        {
+          "locale" : "ja_JP",
+          "name" : "Grace Pro"
+        }
+      ],
+      "name" : "Grace Pro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+          ],
+          "codeOffers" : [
+          ],
+          "displayPrice" : "2.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "2000000001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Monthly access to the on-device Grace assistant.",
+              "displayName" : "Grace Pro Monthly",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "オンデバイスのGraceアシスタントを月ごとに利用できます。",
+              "displayName" : "Grace Pro 月額",
+              "locale" : "ja_JP"
+            }
+          ],
+          "productID" : "llc.ether.grace.pro.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Grace Pro Monthly",
+          "subscriptionGroupID" : "Grace-PRO",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+          ],
+          "codeOffers" : [
+          ],
+          "displayPrice" : "29.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "2000000002",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Yearly access to the on-device Grace assistant.",
+              "displayName" : "Grace Pro Yearly",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "オンデバイスのGraceアシスタントを年ごとに利用できます。",
+              "displayName" : "Grace Pro 年額",
+              "locale" : "ja_JP"
+            }
+          ],
+          "productID" : "llc.ether.grace.pro.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Grace Pro Yearly",
+          "subscriptionGroupID" : "Grace-PRO",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}
