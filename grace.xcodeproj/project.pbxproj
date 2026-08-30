@@ -21,9 +21,22 @@
 		A20000000000000000000121 /* graceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = graceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A30000000000000000000010 /* Exceptions for "grace" folder in "grace" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Resources/StoreKit/StoreKit.storekit,
+			);
+			target = 000000000000000100000000 /* grace */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		000000000000000000000010 /* grace */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A30000000000000000000010 /* Exceptions for "grace" folder in "grace" target */,
+			);
 			path = grace;
 			sourceTree = "<group>";
 		};
