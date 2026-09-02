@@ -38,9 +38,15 @@ struct PaywallView: View {
               .foregroundStyle(.secondary)
             }
           } else {
-            StoreView(ids: ProductID.all)
-              .storeButton(.hidden, for: .cancellation)
-              .storeButton(.visible, for: .restorePurchases)
+            StoreView(
+              ids: ProductID.offeredProductIDs(
+                dailyPassIsActive: environment.isProductActive(
+                  GraceCommerceCatalog.dailyPassProductID
+                )
+              )
+            )
+            .storeButton(.hidden, for: .cancellation)
+            .storeButton(.visible, for: .restorePurchases)
 
             if let expirationDate = environment.entitlements.expirationDates[
               GraceCommerceCatalog.dailyPassProductID
