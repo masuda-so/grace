@@ -1,6 +1,6 @@
 # Grace Privacy Policy
 
-Effective date: July 25, 2026
+Effective date: September 1, 2026
 
 Grace is provided by Ether LLC. This policy explains how the app handles data.
 
@@ -19,6 +19,17 @@ On supported Apple devices and languages, assistant requests use Apple Foundatio
 Models on device. Grace does not send prompts or generated responses to a remote
 AI provider or to Ether LLC. Model availability and system-level diagnostics are
 controlled by the operating system and Apple’s applicable terms.
+
+When you use the assistant, Grace can include the current device time, calendar,
+locale, time zone, and a bounded set of recent Moment titles, notes, and exact stored
+timestamps so the on-device model can answer in context. Stored photos and image data
+are not included. That text remains subject to the same on-device processing described
+above.
+
+The assistant retains its conversation only for the current in-app session. When you
+ask it to prepare a Moment, the generated title, note, and timestamp are only an
+editable candidate. Grace does not write that candidate to SwiftData unless you review
+it and choose **Save Moment**. Cancelling the review writes nothing.
 
 ## Purchases
 

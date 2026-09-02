@@ -15,8 +15,11 @@ current tree before submission.
 - Photos are oriented/downsampled to a 1,600-pixel maximum dimension and encoded
   as JPEG at quality 0.82 before persistence.
 - An explicitly invoked on-device reflection assistant is available only when
-  Apple Foundation Models are supported and Pro access is active; the journal
-  remains usable without purchase or AI.
+  Apple Foundation Models are supported and Pro access is active. It can reference
+  bounded recent Moment text and exact timestamps, keep one in-session conversation,
+  and use guided generation for an editable candidate. It never receives stored
+  photos or writes without a separate review-sheet save; the journal remains usable
+  without purchase or AI.
 - StoreKit 2 product loading, purchase, restore, verified-entitlement, and
   transaction-update handling for a Daily Pass and Monthly/Yearly subscriptions.
 - Privacy, Terms, Restore, and Manage Subscription surfaces are implemented.
@@ -34,7 +37,9 @@ release and compatible SDK/runtime selected for submission.
       production legal-URL checks pass for the current source.
 - [ ] Debug and Release builds pass with the final stable toolchain.
 - [ ] AI, commerce-contract, Grace foundation, streak, rendering, and
-      localization tests pass without unexpected failures or skips.
+      localization tests pass without unexpected failures or skips, including
+      conversation continuity, clock/time-zone context, photo exclusion, candidate
+      review, and explicit-save-only persistence.
 - [ ] Release Analyze passes for the app target.
 - [ ] A release Archive is inspected for identity, minimum OS, localization,
       privacy manifest, content and icon assets, and absence of test-only

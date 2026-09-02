@@ -43,12 +43,15 @@ as guidance unless a distributed source archive and its license are identified.
 - [Foundation Models sample](https://developer.apple.com/documentation/foundationmodels/adding-intelligent-app-features-with-generative-models):
   the downloadable availability switch is an adopted unit. Coffee Game and
   Origami, listed below, supply the adopted response, cancellation, prompt, and
-  error-handling units; the app protocol boundary, validation policy, stable
-  vocabulary, and product instructions remain local.
+  error-handling units; Grace additionally retains one `LanguageModelSession` per
+  visible conversation. The app protocol boundary, validation policy, bounded
+  journal context, stable vocabulary, and product instructions remain local.
 - [Generate dynamic game content with guided generation and tools](https://developer.apple.com/documentation/foundationmodels/generate-dynamic-game-content-with-guided-generation-and-tools)
   ([fixed ZIP](https://docs-assets.developer.apple.com/published/86c65aeb21cc/GenerateDynamicGameContentWithGuidedGenerationAndTools.zip)):
-  adopted nonstreaming `respond(to:)`, response-content, availability, task,
-  cancellation, and app-owned-instructions patterns from Apple's Coffee Game.
+  adopted nonstreaming `respond(to:)`, `@Generable` guided output for editable Moment
+  candidates, response-content, availability, task, cancellation, and app-owned-
+  instructions patterns from Apple's Coffee Game. Generated candidates cannot call
+  SwiftData; the review sheet owns the explicit save action.
 - [Origami: Crafting a dynamic tutorial for Apple Intelligence](https://developer.apple.com/documentation/foundationmodels/origami-crafting-a-dynamic-tutorial-for-apple-intelligence)
   ([fixed ZIP](https://docs-assets.developer.apple.com/published/e843a4026a2e/OrigamiCraftingADynamicTutorialForAppleIntelligence.zip)):
   adopted the `Prompt` builder, post-response cancellation check, and iOS 27
@@ -60,7 +63,9 @@ as guidance unless a distributed source archive and its license are identified.
   a usable non-AI path, and use-case-specific safety boundaries.
 - [Instructions](https://developer.apple.com/documentation/foundationmodels/instructions):
   developer-owned behavior remains in trusted instructions; user-provided content is
-  delimited in the lower-priority prompt and is never interpolated into instructions.
+  JSON-delimited in the lower-priority prompt and is never interpolated into
+  instructions. Recent journal text is also labeled untrusted, bounded to 12 records,
+  and represented without photo data.
 
 ## Platform verification
 
