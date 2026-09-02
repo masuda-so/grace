@@ -6,6 +6,13 @@ final class LocalizationCatalogTests: XCTestCase {
     let requiredRuntimeKeys: Set<String> = [
       "%@ Pro was restored.",
       "No active %@ Pro purchase was found.",
+      "Nothing is saved until you choose Save Moment.",
+      "Photo Unavailable",
+      "Prepare Moment Candidate",
+      "Recent moment titles, notes, and exact dates may be used on device. Photos are never included. AI output may be inaccurate.",
+      "Review Moment",
+      "Save Moment",
+      "The photo could not be added. Please choose another photo.",
     ]
 
     for catalogURL in try catalogURLs() {

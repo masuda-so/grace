@@ -7,6 +7,22 @@ nonisolated protocol AIClient: Sendable {
 
   /// Responds to a validated request.
   func respond(to request: AIRequest) async throws -> AIResponse
+
+  /// Generates a typed, editable moment candidate from the current conversation.
+  func generateMomentDraft(from request: AIRequest) async throws -> AssistantMomentDraft
+
+  /// Releases model state for a conversation that the person has ended.
+  func resetConversation(_ conversationIdentifier: UUID) async
+}
+
+extension AIClient {
+  func generateMomentDraft(from request: AIRequest) async throws -> AssistantMomentDraft {
+    throw AIError.generationFailed(
+      debugDescription: "This AI client does not implement guided moment generation."
+    )
+  }
+
+  func resetConversation(_ conversationIdentifier: UUID) async {}
 }
 
 /// Creates the AI client used by the application.
