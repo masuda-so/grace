@@ -1,3 +1,4 @@
+import Foundation
 import PhotosUI
 import SwiftData
 import SwiftUI
@@ -41,26 +42,9 @@ struct MomentEntryView: View {
 
         ToolbarItem(placement: .confirmationAction) {
           Button("Add", systemImage: "checkmark") {
-            let newMoment = Moment(
-              title: title,
-              note: note,
-              imageData: imageData,
-              timestamp: .now
-            )
-            do {
-              try dataContainer.context.performTransactionOrRollback {
-                dataContainer.context.insert(newMoment)
-                try dataContainer.badgeManager.unlockBadges(newMoment: newMoment)
-              }
-              dismiss()
-            } catch {
-              alert = EntryAlert(
-                title: "Save Failed",
-                message: "Your moment could not be saved. Please try again."
-              )
-            }
+            saveMoment()
           }
-          .disabled(title.isEmpty)
+          .disabled(entryPayload == nil)
         }
       }
       .alert(item: $alert) { alert in
@@ -76,21 +60,35 @@ struct MomentEntryView: View {
   private var photoPicker: some View {
     @Bindable var photoSelection = photoSelection
 
-    return ZStack {
-      PhotoSelectionImage(imageState: photoSelection.imageState)
+    return VStack(alignment: .leading, spacing: 8) {
+      ZStack {
+        PhotoSelectionImage(imageState: photoSelection.imageState)
 
-      PhotosPicker(
-        selection: $photoSelection.imageSelection,
-        matching: .images,
-        photoLibrary: .shared()
-      ) {
-        Color.clear
-          .contentShape(Rectangle())
+        PhotosPicker(
+          selection: $photoSelection.imageSelection,
+          matching: .images,
+          photoLibrary: .shared()
+        ) {
+          Color.clear
+            .contentShape(Rectangle())
+        }
+        .accessibilityLabel("Choose Photo")
+        .accessibilityHint("Select a photo to include with this moment.")
       }
-      .accessibilityLabel("Choose Photo")
-      .accessibilityHint("Select a photo to include with this moment.")
+      .clipShape(RoundedRectangle(cornerRadius: 16))
+
+      if case .failure = photoSelection.imageState {
+        VStack(alignment: .leading, spacing: 4) {
+          Label("Photo Unavailable", systemImage: "exclamationmark.triangle.fill")
+            .font(.headline)
+          Text("The photo could not be added. Please choose another photo.")
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("moment-photo-selection-error")
+      }
     }
-    .clipShape(RoundedRectangle(cornerRadius: 16))
   }
 
   var contentStack: some View {
@@ -116,6 +114,64 @@ struct MomentEntryView: View {
       return nil
     }
     return data
+  }
+
+  private var entryPayload: MomentEntryPayload? {
+    MomentEntryValidation.payload(
+      title: title,
+      imageState: photoSelection.imageState
+    )
+  }
+
+  private func saveMoment() {
+    guard let entryPayload else { return }
+
+    let newMoment = Moment(
+      title: entryPayload.title,
+      note: note,
+      imageData: entryPayload.imageData,
+      timestamp: .now
+    )
+    do {
+      try dataContainer.context.performTransactionOrRollback {
+        dataContainer.context.insert(newMoment)
+        try dataContainer.badgeManager.unlockBadges(newMoment: newMoment)
+      }
+      dismiss()
+    } catch {
+      alert = EntryAlert(
+        title: "Save Failed",
+        message: "Your moment could not be saved. Please try again."
+      )
+    }
+  }
+}
+
+struct MomentEntryPayload {
+  let title: String
+  let imageData: Data?
+}
+
+enum MomentEntryValidation {
+  @MainActor
+  static func payload(
+    title: String,
+    imageState: PhotoSelection.ImageState
+  ) -> MomentEntryPayload? {
+    let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmedTitle.isEmpty else { return nil }
+
+    let imageData: Data?
+    switch imageState {
+    case .empty:
+      imageData = nil
+    case .success(let data):
+      imageData = data
+    case .loading, .failure:
+      return nil
+    }
+
+    return MomentEntryPayload(title: trimmedTitle, imageData: imageData)
   }
 }
 
