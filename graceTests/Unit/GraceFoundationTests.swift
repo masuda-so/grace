@@ -44,6 +44,22 @@ final class GraceFoundationTests: XCTestCase {
     )
   }
 
+  func testActiveDailyPassIsHiddenFromPurchaseOptions() {
+    XCTAssertEqual(
+      ProductID.offeredProductIDs(dailyPassIsActive: false),
+      ProductID.all
+    )
+    XCTAssertEqual(
+      ProductID.offeredProductIDs(dailyPassIsActive: true),
+      ProductID.subscriptions
+    )
+    XCTAssertFalse(
+      ProductID.offeredProductIDs(dailyPassIsActive: true).contains(
+        GraceCommerceCatalog.dailyPassProductID
+      )
+    )
+  }
+
   @MainActor
   func testApplicationSectionsRemainDistinct() {
     let sections: Set<AppSection> = [
@@ -333,6 +349,50 @@ final class GraceFoundationTests: XCTestCase {
     XCTAssertTrue(PhotoSelection.isCurrentSelection(current, current: current))
     XCTAssertFalse(PhotoSelection.isCurrentSelection(stale, current: current))
     XCTAssertFalse(PhotoSelection.isCurrentSelection(current, current: nil))
+  }
+
+  @MainActor
+  func testMomentEntryRequiresAndTrimsItsTitle() throws {
+    XCTAssertNil(
+      MomentEntryValidation.payload(title: " \n\t ", imageState: .empty)
+    )
+
+    let payload = try XCTUnwrap(
+      MomentEntryValidation.payload(
+        title: "  Morning light \n",
+        imageState: .empty
+      )
+    )
+    XCTAssertEqual(payload.title, "Morning light")
+    XCTAssertNil(payload.imageData)
+  }
+
+  @MainActor
+  func testMomentEntryWaitsForSelectedPhotoPreparation() throws {
+    XCTAssertNotNil(
+      MomentEntryValidation.payload(title: "Morning", imageState: .empty)
+    )
+    XCTAssertNil(
+      MomentEntryValidation.payload(
+        title: "Morning",
+        imageState: .loading(Progress(totalUnitCount: 1))
+      )
+    )
+    XCTAssertNil(
+      MomentEntryValidation.payload(
+        title: "Morning",
+        imageState: .failure(CocoaError(.fileReadCorruptFile))
+      )
+    )
+
+    let imageData = Data([1, 2, 3])
+    let payload = try XCTUnwrap(
+      MomentEntryValidation.payload(
+        title: "Morning",
+        imageState: .success(imageData)
+      )
+    )
+    XCTAssertEqual(payload.imageData, imageData)
   }
 
   @MainActor
