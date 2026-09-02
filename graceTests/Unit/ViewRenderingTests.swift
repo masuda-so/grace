@@ -36,6 +36,20 @@ final class ViewRenderingTests: XCTestCase {
       AnyView(
         AssistantView(selection: .constant(.assistant))
           .environment(AppEnvironment.preview)
+          .sampleDataContainer()
+      ),
+      AnyView(
+        AssistantMomentReviewView(
+          draft: AssistantMomentDraft(
+            title: "A kind message",
+            note: "A friend checked in.",
+            timestamp: Date(timeIntervalSince1970: 1_788_237_123)
+          )
+        )
+        .environment(\.locale, Locale(identifier: "ja_JP"))
+        .environment(\.calendar, Calendar(identifier: .japanese))
+        .environment(\.timeZone, TimeZone(secondsFromGMT: 32_400) ?? .gmt)
+        .sampleDataContainer()
       ),
       AnyView(PaywallView().environment(AppEnvironment.preview)),
       AnyView(SettingsView().environment(AppEnvironment.preview)),

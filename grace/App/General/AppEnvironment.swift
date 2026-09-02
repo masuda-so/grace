@@ -19,6 +19,7 @@ final class AppEnvironment {
   private let sleep: @Sendable (Duration) async throws -> Void
   private var entitlementTask: Task<Void, Never>?
   private var expirationTask: Task<Void, Never>?
+  private var assistantConversationIdentifier = UUID()
 
   var aiAvailability: AIAvailability = .unavailable(.unknown)
   var entitlements = EntitlementSnapshot() {
@@ -27,8 +28,10 @@ final class AppEnvironment {
     }
   }
   var assistantResponse: String?
+  var assistantMessages: [AssistantMessage] = []
   var assistantErrorMessage: String?
   var isGenerating = false
+  var isPreparingMomentDraft = false
   var hasLoadedInitialState = false
 
   init(
@@ -65,6 +68,11 @@ final class AppEnvironment {
 
     aiAvailability = await availability
     entitlements = await currentEntitlements
+  }
+
+  /// Rechecks state that can change after Apple Intelligence finishes preparing.
+  func refreshAIAvailability() async {
+    aiAvailability = await assistant.availability
   }
 
   /// Restores App Store purchases and immediately applies the refreshed access state.
@@ -120,13 +128,21 @@ final class AppEnvironment {
     expirationTask?.cancel()
   }
 
-  /// Requests an assistant response and publishes the resulting UI state.
-  func requestAssistantResponse(for text: String) async {
+  /// Requests the next assistant response in the current in-app conversation.
+  func requestAssistantResponse(
+    for text: String,
+    context suppliedContext: AssistantConversationContext? = nil
+  ) async {
     guard !isGenerating else { return }
+    isGenerating = true
+    defer { isGenerating = false }
 
     assistantResponse = nil
     assistantErrorMessage = nil
 
+    if !isAIAvailable {
+      await refreshAIAvailability()
+    }
     guard isAIAvailable else {
       assistantErrorMessage = String(localized: "The on-device assistant is unavailable.")
       return
@@ -137,13 +153,24 @@ final class AppEnvironment {
       return
     }
 
-    isGenerating = true
-    defer { isGenerating = false }
+    let messageText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !messageText.isEmpty else {
+      assistantErrorMessage = AIError.emptyPrompt.localizedDescription
+      return
+    }
+
+    let context = suppliedContext ?? makeAssistantConversationContext(recentMoments: [])
+    assistantMessages.append(AssistantMessage(role: .person, text: messageText))
 
     do {
-      let response = try await assistant.respond(to: text)
+      let response = try await assistant.respond(
+        to: messageText,
+        context: context,
+        conversationIdentifier: assistantConversationIdentifier
+      )
       try Task.checkCancellation()
       assistantResponse = response
+      assistantMessages.append(AssistantMessage(role: .assistant, text: response))
     } catch AIError.cancelled {
       return
     } catch is CancellationError {
@@ -151,14 +178,101 @@ final class AppEnvironment {
     } catch let error as AIError {
       assistantErrorMessage = error.localizedDescription
     } catch {
-      Self.logger.error(
-        "Unexpected assistant error: \(String(describing: error), privacy: .private)"
-      )
-      assistantErrorMessage =
-        AIError.generationFailed(
-          debugDescription: String(describing: error)
-        ).localizedDescription
+      publishUnexpectedAssistantError(error)
     }
+  }
+
+  /// Generates an editable candidate without writing to SwiftData.
+  func requestAssistantMomentDraft(
+    context: AssistantConversationContext
+  ) async -> AssistantMomentDraft? {
+    guard !isGenerating else { return nil }
+    isGenerating = true
+    isPreparingMomentDraft = true
+    defer {
+      isGenerating = false
+      isPreparingMomentDraft = false
+    }
+
+    assistantErrorMessage = nil
+
+    if !isAIAvailable {
+      await refreshAIAvailability()
+    }
+    guard isAIAvailable else {
+      assistantErrorMessage = String(localized: "The on-device assistant is unavailable.")
+      return nil
+    }
+
+    guard isPremium else {
+      assistantErrorMessage = String(localized: "Choose a Pro plan to use the on-device assistant.")
+      return nil
+    }
+
+    guard assistantMessages.contains(where: { $0.role == .person }) else {
+      assistantErrorMessage = String(
+        localized: "Start a conversation before preparing a moment candidate."
+      )
+      return nil
+    }
+
+    do {
+      let draft = try await assistant.proposeMoment(
+        context: context,
+        conversationIdentifier: assistantConversationIdentifier
+      )
+      try Task.checkCancellation()
+      return draft
+    } catch AIError.cancelled {
+      return nil
+    } catch is CancellationError {
+      return nil
+    } catch let error as AIError {
+      assistantErrorMessage = error.localizedDescription
+      return nil
+    } catch {
+      publishUnexpectedAssistantError(error)
+      return nil
+    }
+  }
+
+  /// Ends the retained model transcript and clears its visible conversation.
+  func resetAssistantConversation() {
+    guard !isGenerating else { return }
+    let expiredIdentifier = assistantConversationIdentifier
+    assistantConversationIdentifier = UUID()
+    assistantMessages.removeAll()
+    assistantResponse = nil
+    assistantErrorMessage = nil
+    Task {
+      await assistant.resetConversation(expiredIdentifier)
+    }
+  }
+
+  /// Captures a current clock and time-zone snapshot alongside recent text records.
+  func makeAssistantConversationContext(
+    recentMoments: [AssistantMomentRecord],
+    locale: Locale = .autoupdatingCurrent,
+    timeZone: TimeZone = .autoupdatingCurrent,
+    calendar: Calendar = .autoupdatingCurrent
+  ) -> AssistantConversationContext {
+    AssistantConversationContext(
+      currentDate: currentDate(),
+      timeZone: timeZone,
+      calendar: calendar,
+      locale: locale,
+      recentMoments: recentMoments
+    )
+  }
+
+  private func publishUnexpectedAssistantError(_ error: any Error) {
+    Self.logger.error(
+      "Unexpected assistant error: \(String(describing: error), privacy: .private)"
+    )
+    assistantErrorMessage =
+      AIError.generationFailed(
+        debugDescription: String(describing: error)
+      ).localizedDescription
   }
 
   var isPremium: Bool {

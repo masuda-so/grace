@@ -3,6 +3,7 @@ import SwiftUI
 
 @main
 struct GraceApp: App {
+  @Environment(\.scenePhase) private var scenePhase
   @State private var environment = AppEnvironment()
   @State private var dataContainer = DataContainer()
 
@@ -14,6 +15,12 @@ struct GraceApp: App {
         .modelContainer(dataContainer.modelContainer)
         .task {
           await environment.start()
+        }
+        .onChange(of: scenePhase) { _, phase in
+          guard phase == .active else { return }
+          Task {
+            await environment.refreshAIAvailability()
+          }
         }
     }
   }

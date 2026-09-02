@@ -1,6 +1,310 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Conversation" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conversation"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会話"
+          }
+        }
+      }
+    },
+    "Date and Time" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date and Time"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "日時"
+          }
+        }
+      }
+    },
+    "Moment Candidate" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moment Candidate"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記録候補"
+          }
+        }
+      }
+    },
+    "New Conversation" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Conversation"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しい会話"
+          }
+        }
+      }
+    },
+    "No photo will be added to this candidate." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No photo will be added to this candidate."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この記録候補に写真は追加されません。"
+          }
+        }
+      }
+    },
+    "Nothing is saved until you choose Save Moment." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing is saved until you choose Save Moment."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「記録を保存」を選ぶまで、何も保存されません。"
+          }
+        }
+      }
+    },
+    "Open Moments" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Moments"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記録を開く"
+          }
+        }
+      }
+    },
+    "Prepare Moment Candidate" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prepare Moment Candidate"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記録候補を作成"
+          }
+        }
+      }
+    },
+    "Preparing a moment candidate…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparing a moment candidate…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記録候補を作成中…"
+          }
+        }
+      }
+    },
+    "Recent moment titles, notes, and exact dates may be used on device. Photos are never included. AI output may be inaccurate." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recent moment titles, notes, and exact dates may be used on device. Photos are never included. AI output may be inaccurate."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近の記録のタイトル、メモ、正確な日時がデバイス上で使用される場合があります。写真は含まれません。AIの出力は不正確な場合があります。"
+          }
+        }
+      }
+    },
+    "Review and edit every field before saving this moment." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review and edit every field before saving this moment."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存する前に、すべての項目を確認し、必要に応じて編集してください。"
+          }
+        }
+      }
+    },
+    "Review Moment" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review Moment"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記録を確認"
+          }
+        }
+      }
+    },
+    "Save Moment" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save Moment"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記録を保存"
+          }
+        }
+      }
+    },
+    "Share what you appreciate, ask about a recent moment, or talk through a new entry." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share what you appreciate, ask about a recent moment, or talk through a new entry."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "感謝していることを共有したり、最近の記録について尋ねたり、新しい記録について話したりできます。"
+          }
+        }
+      }
+    },
+    "Start a Conversation" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start a Conversation"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会話を始める"
+          }
+        }
+      }
+    },
+    "Start a conversation before preparing a moment candidate." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start a conversation before preparing a moment candidate."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "記録候補を作成する前に、会話を始めてください。"
+          }
+        }
+      }
+    },
+    "The assistant couldn’t prepare a valid moment. Try again." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The assistant couldn’t prepare a valid moment. Try again."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有効な記録候補を作成できませんでした。もう一度お試しください。"
+          }
+        }
+      }
+    },
+    "You" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "あなた"
+          }
+        }
+      }
+    },
+    "Your journal remains available without the assistant." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your journal remains available without the assistant."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アシスタントが利用できなくても、ジャーナルは引き続き利用できます。"
+          }
+        }
+      }
+    },
     "%@ %@ remains usable without the assistant." : {
       "localizations" : {
         "ja" : {
@@ -867,7 +1171,6 @@
       }
     },
     "Photo Unavailable" : {
-      "extractionState" : "stale",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
@@ -1353,7 +1656,6 @@
       }
     },
     "The photo could not be added. Please choose another photo." : {
-      "extractionState" : "stale",
       "localizations" : {
         "ja" : {
           "stringUnit" : {
