@@ -500,7 +500,7 @@ final class AIPlatformTests: XCTestCase {
           ),
           (
             LanguageModelError.refusal(
-              .init(debugDescription: "Test refusal")
+              .init(explanation: "Test refusal", debugDescription: "Test refusal")
             ),
             .requestRefused
           ),
