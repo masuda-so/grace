@@ -46,7 +46,7 @@ struct PaywallView: View {
               )
             )
             .storeButton(.hidden, for: .cancellation)
-            .storeButton(.visible, for: .restorePurchases)
+            .storeButton(.hidden, for: .restorePurchases)
 
             if let expirationDate = environment.entitlements.expirationDates[
               GraceCommerceCatalog.dailyPassProductID
@@ -58,6 +58,8 @@ struct PaywallView: View {
               .foregroundStyle(environment.product.accent)
             }
           }
+
+          RestorePurchasesButton()
 
           Button("Manage Subscription") {
             isShowingSubscriptionManagement = true
