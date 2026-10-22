@@ -101,9 +101,10 @@ the Test step passes `-test-timeouts-enabled YES`, so a hung test fails after
 XCTest's default 10-minute allowance and the remaining tests still run; without
 it a hang lasts until the 6-hour job limit. Separately, a top-level
 `permissions: contents: read` block limits the workflow token to read access,
-as CodeQL's `actions/missing-workflow-permissions` query asks. All other bytes,
-including action references, language versions, commands, and runner
-selection, are preserved.
+as CodeQL's `actions/missing-workflow-permissions` query asks. Language versions,
+commands, and runner selection are otherwise preserved. Action references are
+kept current by Dependabot (see Dependency updates), so their versions no
+longer match the template.
 Do not add independent CI checks or compatibility adjustments without a
 separate requested change.
 
