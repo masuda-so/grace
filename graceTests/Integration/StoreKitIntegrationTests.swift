@@ -221,8 +221,21 @@ final class StoreKitIntegrationTests: XCTestCase {
       identifier: GraceCommerceCatalog.dailyPassProductID,
       options: [.purchaseDate(firstPurchaseDate)]
     )
-    // Complete delivery of the first test purchase before buying the same pass again.
-    await firstTransaction.finish()
+    // Observe the actual unfinished StoreKit transaction before checking its removal.
+    var unfinishedFirstPurchase: Transaction?
+    try await waitForStoreKitState("first daily-pass purchase to appear as unfinished") {
+      for await result in Transaction.unfinished {
+        if case .verified(let transaction) = result,
+           transaction.id == firstTransaction.id {
+          unfinishedFirstPurchase = transaction
+          return true
+        }
+      }
+      return false
+    }
+    let transactionToFinish = try XCTUnwrap(unfinishedFirstPurchase)
+    // Complete delivery before buying the same pass again.
+    await transactionToFinish.finish()
     try await waitForStoreKitState("first daily-pass purchase to finish before repurchase") {
       for await result in Transaction.unfinished {
         if case .verified(let transaction) = result,
