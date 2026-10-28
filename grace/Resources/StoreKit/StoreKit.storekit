@@ -7,12 +7,12 @@
       "internalID" : "1000000001",
       "localizations" : [
         {
-          "description" : "One-time access to Grace Pro for 24 hours. This pass does not renew automatically.",
+          "description" : "24-hour Pro access. No automatic renewal.",
           "displayName" : "Grace Pro Daily Pass",
           "locale" : "en_US"
         },
         {
-          "description" : "Grace Proを24時間利用できる買い切りパスです。自動更新されません。",
+          "description" : "Proを24時間利用。自動更新はありません。",
           "displayName" : "Grace Pro デイリーパス",
           "locale" : "ja_JP"
         }
@@ -34,11 +34,13 @@
       "localizations" : [
         {
           "locale" : "en_US",
-          "name" : "Grace Pro"
+          "displayName" : "Grace Pro",
+          "description" : ""
         },
         {
           "locale" : "ja_JP",
-          "name" : "Grace Pro"
+          "displayName" : "Grace Pro",
+          "description" : ""
         }
       ],
       "name" : "Grace Pro",
@@ -55,12 +57,12 @@
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "Monthly access to the on-device Grace assistant.",
+              "description" : "Monthly Pro access. Renews automatically.",
               "displayName" : "Grace Pro Monthly",
               "locale" : "en_US"
             },
             {
-              "description" : "オンデバイスのGraceアシスタントを月ごとに利用できます。",
+              "description" : "Proを1か月利用。自動更新します。",
               "displayName" : "Grace Pro 月額",
               "locale" : "ja_JP"
             }
@@ -83,12 +85,12 @@
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "Yearly access to the on-device Grace assistant.",
+              "description" : "Yearly Pro access. Renews automatically.",
               "displayName" : "Grace Pro Yearly",
               "locale" : "en_US"
             },
             {
-              "description" : "オンデバイスのGraceアシスタントを年ごとに利用できます。",
+              "description" : "Proを1年間利用。自動更新します。",
               "displayName" : "Grace Pro 年額",
               "locale" : "ja_JP"
             }
