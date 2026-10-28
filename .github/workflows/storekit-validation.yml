@@ -7,6 +7,7 @@ on:
     paths:
       - '.github/workflows/storekit-validation.yml'
       - 'grace/Resources/StoreKit/StoreKit.storekit'
+      - 'graceTests/Integration/StoreKitIntegrationTests.swift'
 
 permissions:
   contents: read

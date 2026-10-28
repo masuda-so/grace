@@ -49,10 +49,14 @@ final class StoreKitIntegrationTests: XCTestCase {
     )
 
     var unfinishedProductIDs: Set<String> = []
-    for await result in Transaction.unfinished {
-      if case .verified(let transaction) = result {
-        unfinishedProductIDs.insert(transaction.productID)
+    try await waitForStoreKitState("monthly purchase to leave unfinished transactions") {
+      unfinishedProductIDs.removeAll()
+      for await result in Transaction.unfinished {
+        if case .verified(let transaction) = result {
+          unfinishedProductIDs.insert(transaction.productID)
+        }
       }
+      return !unfinishedProductIDs.contains(GraceCommerceCatalog.monthlyProductID)
     }
     XCTAssertFalse(unfinishedProductIDs.contains(GraceCommerceCatalog.monthlyProductID))
   }
@@ -173,7 +177,11 @@ final class StoreKitIntegrationTests: XCTestCase {
     )
     _ = try session.refundTransaction(identifier: transaction.identifier)
 
-    let refunded = await client.currentEntitlements()
+    var refunded = await client.currentEntitlements()
+    try await waitForStoreKitState("refunded monthly entitlement to disappear") {
+      refunded = await client.currentEntitlements()
+      return !refunded.activeProductIDs.contains(GraceCommerceCatalog.monthlyProductID)
+    }
     XCTAssertFalse(
       refunded.activeProductIDs.contains(GraceCommerceCatalog.monthlyProductID)
     )
@@ -190,6 +198,17 @@ final class StoreKitIntegrationTests: XCTestCase {
       identifier: GraceCommerceCatalog.dailyPassProductID,
       options: [.purchaseDate(firstPurchaseDate)]
     )
+    // Complete delivery of the first test purchase before buying the same pass again.
+    await firstTransaction.finish()
+    try await waitForStoreKitState("first daily-pass purchase to finish before repurchase") {
+      for await result in Transaction.unfinished {
+        if case .verified(let transaction) = result,
+           transaction.id == firstTransaction.id {
+          return false
+        }
+      }
+      return true
+    }
     let secondTransaction = try await session.buyProduct(
       identifier: GraceCommerceCatalog.dailyPassProductID,
       options: [.purchaseDate(secondPurchaseDate)]
@@ -248,10 +267,39 @@ final class StoreKitIntegrationTests: XCTestCase {
     _ = try session.expireSubscription(
       productIdentifier: GraceCommerceCatalog.monthlyProductID
     )
-    let afterExpiration = await client.currentEntitlements()
+    var afterExpiration = await client.currentEntitlements()
+    try await waitForStoreKitState("expired monthly entitlement to disappear") {
+      afterExpiration = await client.currentEntitlements()
+      return !afterExpiration.activeProductIDs.contains(GraceCommerceCatalog.monthlyProductID)
+    }
     XCTAssertFalse(
       afterExpiration.activeProductIDs.contains(GraceCommerceCatalog.monthlyProductID)
     )
+  }
+
+  /// Waits for observable StoreKit state without treating a timeout as success.
+  @MainActor
+  private func waitForStoreKitState(
+    _ description: String,
+    condition: @MainActor () async -> Bool
+  ) async throws {
+    let clock = ContinuousClock()
+    let started = clock.now
+    let deadline = started.advanced(by: .seconds(30))
+    repeat {
+      if await condition() {
+        print("StoreKit state confirmed after \(started.duration(to: clock.now)): \(description)")
+        return
+      }
+      try await clock.sleep(for: .milliseconds(100))
+    } while clock.now < deadline
+    print("StoreKit state timed out after \(started.duration(to: clock.now)): \(description)")
+    XCTFail("Timed out waiting for StoreKit state: \(description)")
+    throw StoreKitStateWaitError.timedOut
+  }
+
+  private enum StoreKitStateWaitError: Error {
+    case timedOut
   }
 
   private static let dailyPassDuration: TimeInterval = 24 * 60 * 60
