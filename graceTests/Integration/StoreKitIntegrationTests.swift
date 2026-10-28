@@ -8,7 +8,7 @@ import XCTest
 final class StoreKitIntegrationTests: XCTestCase {
   @MainActor
   func testConfiguredProductsLoadWithProductionIdentifiers() async throws {
-    let session = try makeSession()
+    let session = try await makeSession()
     defer { session.clearTransactions() }
 
     let client = StoreKitSubscriptionClient(catalog: GraceCommerceCatalog.catalog)
@@ -32,7 +32,7 @@ final class StoreKitIntegrationTests: XCTestCase {
 
   @MainActor
   func testClientPurchaseReturnsVerifiedEntitlement() async throws {
-    let session = try makeSession()
+    let session = try await makeSession()
     defer { session.clearTransactions() }
 
     let client = StoreKitSubscriptionClient(catalog: GraceCommerceCatalog.catalog)
@@ -64,7 +64,7 @@ final class StoreKitIntegrationTests: XCTestCase {
   @MainActor
   func testEntitlementUpdatesProcessesAndFinishesUnfinishedTransaction() async throws {
     print("StoreKit stream phase \(Date()): create session")
-    let session = try makeSession()
+    let session = try await makeSession()
     defer {
       print("StoreKit stream phase \(Date()): request cleanup")
       session.clearTransactions()
@@ -92,8 +92,16 @@ final class StoreKitIntegrationTests: XCTestCase {
       var iterator = updates.makeAsyncIterator()
       print("StoreKit stream phase \(Date()): await first snapshot")
       snapshot = await iterator.next()
+      if Task.isCancelled {
+        print("StoreKit stream phase \(Date()): first receive cancelled")
+        return
+      }
       didReceiveFirstSnapshot = true
       print("StoreKit stream phase \(Date()): first receive returned")
+      // Keep the subscription alive so scope-exit cancellation reaches AsyncStream.
+      while !Task.isCancelled {
+        guard await iterator.next() != nil else { break }
+      }
     }
     defer { receiver.cancel() }
     try await waitForStoreKitState("client stream to return its first snapshot", timeout: .seconds(90)) {
@@ -119,7 +127,7 @@ final class StoreKitIntegrationTests: XCTestCase {
 
   @MainActor
   func testRestoreSynchronizesPurchasedEntitlementIntoFreshClient() async throws {
-    let session = try makeSession()
+    let session = try await makeSession()
     defer { session.clearTransactions() }
 
     _ = try await session.buyProduct(identifier: GraceCommerceCatalog.yearlyProductID)
@@ -133,7 +141,7 @@ final class StoreKitIntegrationTests: XCTestCase {
 
   @MainActor
   func testDailyPassUsesPurchaseDateAndInjectedClockAtBoundary() async throws {
-    let session = try makeSession()
+    let session = try await makeSession()
     defer { session.clearTransactions() }
 
     let requestedPurchaseDate = Date(timeIntervalSince1970: 1_750_000_000)
@@ -148,7 +156,12 @@ final class StoreKitIntegrationTests: XCTestCase {
     )
 
     let expiration = transaction.purchaseDate.addingTimeInterval(Self.dailyPassDuration)
-    let beforeExpiration = await entitlementSnapshot(at: expiration.addingTimeInterval(-0.001))
+    var beforeExpiration = await entitlementSnapshot(at: expiration.addingTimeInterval(-0.001))
+    try await waitForStoreKitState("boundary-test purchase to be visible before evaluating expiry") {
+      beforeExpiration = await self.entitlementSnapshot(at: expiration.addingTimeInterval(-0.001))
+      return beforeExpiration.expirationDates[GraceCommerceCatalog.dailyPassProductID] == expiration
+        && beforeExpiration.activeProductIDs.contains(GraceCommerceCatalog.dailyPassProductID)
+    }
     let atExpiration = await entitlementSnapshot(at: expiration)
     let afterExpiration = await entitlementSnapshot(at: expiration.addingTimeInterval(0.001))
 
@@ -169,7 +182,7 @@ final class StoreKitIntegrationTests: XCTestCase {
 
   @MainActor
   func testAskToBuyReturnsPendingPurchaseOutcome() async throws {
-    let session = try makeSession()
+    let session = try await makeSession()
     session.askToBuyEnabled = true
     defer { session.clearTransactions() }
 
@@ -184,7 +197,7 @@ final class StoreKitIntegrationTests: XCTestCase {
 
   @MainActor
   func testRefundRemovesMonthlyEntitlement() async throws {
-    let session = try makeSession()
+    let session = try await makeSession()
     defer { session.clearTransactions() }
 
     _ = try await session.buyProduct(identifier: GraceCommerceCatalog.monthlyProductID)
@@ -212,7 +225,7 @@ final class StoreKitIntegrationTests: XCTestCase {
 
   @MainActor
   func testDailyPassRepurchaseUsesLatestSignedPurchaseDate() async throws {
-    let session = try makeSession()
+    let session = try await makeSession()
     defer { session.clearTransactions() }
 
     let firstPurchaseDate = Date(timeIntervalSince1970: 1_750_000_000)
@@ -287,7 +300,7 @@ final class StoreKitIntegrationTests: XCTestCase {
 
   @MainActor
   func testDisablingAutoRenewKeepsAccessUntilSubscriptionExpires() async throws {
-    let session = try makeSession()
+    let session = try await makeSession()
     defer { session.clearTransactions() }
 
     _ = try await session.buyProduct(identifier: GraceCommerceCatalog.monthlyProductID)
@@ -349,13 +362,23 @@ final class StoreKitIntegrationTests: XCTestCase {
 
   private static let dailyPassDuration: TimeInterval = 24 * 60 * 60
 
-  private func makeSession() throws -> SKTestSession {
+  @MainActor
+  private func makeSession() async throws -> SKTestSession {
+    print("StoreKit fixture phase \(Date()): create and reset session")
     let session = try SKTestSession(
       contentsOf: TestResources.url(forResource: "StoreKit", withExtension: "storekit")
     )
     session.resetToDefaultState()
     session.clearTransactions()
     session.disableDialogs = true
+    print("StoreKit fixture phase \(Date()): confirm cleared transaction state")
+    try await waitForStoreKitState("clean test fixture in StoreKitTest and StoreKit") {
+      guard session.allTransactions().isEmpty else { return false }
+      for await _ in Transaction.unfinished { return false }
+      for await _ in Transaction.currentEntitlements { return false }
+      return true
+    }
+    print("StoreKit fixture phase \(Date()): cleared transaction state confirmed")
     return session
   }
 
