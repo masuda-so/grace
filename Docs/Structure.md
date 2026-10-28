@@ -56,28 +56,8 @@ Platform references:
 
 ## Git workflow
 
-Follow the [Git commit guidelines](https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project):
-keep each commit focused on one logical change, including its necessary tests,
-configuration, and documentation. Separate unrelated fixes, formatting, and
-localization metadata. Use a concise imperative subject (aim for about 50
-characters), a blank line, and a body explaining the problem and resulting
-behavior, wrapped at about 72 characters. Run `git diff --check` and the relevant
-checks before publishing; report any validation limits accurately.
-
-Use the configured signing identity and verify signatures locally and on GitHub.
-Preserve truthful authorship and timestamps. Add attribution, review, or sign-off
-trailers only when their meaning is justified; they are not substitutes for a
-cryptographic signature. Git's own submission-specific requirements do not
-become mandatory rules for these repositories.
-
-Before publishing substantial changes, preserve the previous branch tip and a
-verified Git bundle; also save uncommitted files when applicable. Prefer
-fast-forward updates and signed revert commits for rollback. Rewrite published
-history only when explicitly authorized. Verify the remote commit IDs, content,
-metadata, signatures, and available CI results after pushing.
-
-- [Git bundle backups](https://git-scm.com/docs/git-bundle)
-- [GitHub signature verification](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification)
+Follow Git's
+[guidelines for contributing to a project](https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project).
 
 ## Continuous integration
 
