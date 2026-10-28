@@ -70,6 +70,50 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          mkdir -p artifacts/process-samples
+          rm -f artifacts/process-samples/stop
+          python3 - <<'PYTHON' &
+          import datetime, os, pathlib, subprocess, time
+          root = pathlib.Path("artifacts/process-samples")
+          root.mkdir(parents=True, exist_ok=True)
+          stop = root / "stop"
+          udid = os.environ["SIMULATOR_ID"].lower()
+          started = time.monotonic()
+          next_sample = 0.0
+          attempts = 0
+          with (root / "sampler.log").open("w", buffering=1) as log:
+              while not stop.exists() and time.monotonic() - started < 1200 and attempts < 4:
+                  if time.monotonic() < next_sample:
+                      time.sleep(0.5)
+                      continue
+                  listing = subprocess.run(["ps", "-axo", "pid=,comm="], capture_output=True, text=True, timeout=5)
+                  matches = []
+                  for row in listing.stdout.splitlines():
+                      parts = row.strip().split(None, 1)
+                      if len(parts) == 2 and udid in parts[1].lower() and parts[1].endswith("/grace.app/grace"):
+                          matches.append((parts[0], parts[1]))
+                  if not matches:
+                      time.sleep(0.5)
+                      continue
+                  attempts += 1
+                  print(datetime.datetime.now(datetime.timezone.utc).isoformat(), matches, file=log)
+                  if len(matches) != 1:
+                      print("Ambiguous process selection; sampling skipped", file=log)
+                      break
+                  pid, executable = matches[0]
+                  try:
+                      result = subprocess.run(["/usr/bin/sample", pid, "3", "10", "-mayDie", "-file", str(root / f"grace-{attempts}.sample.txt")], capture_output=True, text=True, timeout=10)
+                      print("sample exit", result.returncode, result.stdout, result.stderr, file=log)
+                  except subprocess.TimeoutExpired:
+                      print("sample timed out; diagnostic only", file=log)
+                  next_sample = time.monotonic() + 25
+          PYTHON
+          sampler_pid=$!
+          finish_sampling() {
+            touch artifacts/process-samples/stop
+            wait "$sampler_pid" || true
+          }
+          trap finish_sampling EXIT
           xcodebuild test \
             -project grace.xcodeproj \
             -scheme grace \

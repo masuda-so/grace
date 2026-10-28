@@ -76,10 +76,14 @@ final class StoreKitIntegrationTests: XCTestCase {
     print("StoreKit stream phase \(Date()): inspect unfinished transactions")
 
     var unfinishedProductIDs: Set<String> = []
-    for await result in Transaction.unfinished {
-      if case .verified(let transaction) = result {
-        unfinishedProductIDs.insert(transaction.productID)
+    try await waitForStoreKitState("seeded monthly purchase to be visible as unfinished before subscribing") {
+      unfinishedProductIDs.removeAll()
+      for await result in Transaction.unfinished {
+        if case .verified(let transaction) = result {
+          unfinishedProductIDs.insert(transaction.productID)
+        }
       }
+      return unfinishedProductIDs.contains(GraceCommerceCatalog.monthlyProductID)
     }
     XCTAssertTrue(unfinishedProductIDs.contains(GraceCommerceCatalog.monthlyProductID))
 
@@ -202,7 +206,11 @@ final class StoreKitIntegrationTests: XCTestCase {
 
     _ = try await session.buyProduct(identifier: GraceCommerceCatalog.monthlyProductID)
     let client = StoreKitSubscriptionClient(catalog: GraceCommerceCatalog.catalog)
-    let purchased = await client.currentEntitlements()
+    var purchased = await client.currentEntitlements()
+    try await waitForStoreKitState("monthly entitlement to be visible before refund") {
+      purchased = await client.currentEntitlements()
+      return purchased.activeProductIDs.contains(GraceCommerceCatalog.monthlyProductID)
+    }
     XCTAssertTrue(
       purchased.activeProductIDs.contains(GraceCommerceCatalog.monthlyProductID)
     )
@@ -309,6 +317,11 @@ final class StoreKitIntegrationTests: XCTestCase {
       productID: GraceCommerceCatalog.monthlyProductID
     )
     let client = StoreKitSubscriptionClient(catalog: GraceCommerceCatalog.catalog)
+
+    try await waitForStoreKitState("monthly entitlement to be visible before disabling auto renew") {
+      let purchased = await client.currentEntitlements()
+      return purchased.activeProductIDs.contains(GraceCommerceCatalog.monthlyProductID)
+    }
 
     _ = try session.disableAutoRenewForTransaction(identifier: transaction.identifier)
     let afterDisablingAutoRenew = await client.currentEntitlements()
