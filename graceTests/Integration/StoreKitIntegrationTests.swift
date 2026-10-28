@@ -63,10 +63,17 @@ final class StoreKitIntegrationTests: XCTestCase {
 
   @MainActor
   func testEntitlementUpdatesProcessesAndFinishesUnfinishedTransaction() async throws {
+    print("StoreKit stream phase \(Date()): create session")
     let session = try makeSession()
-    defer { session.clearTransactions() }
+    defer {
+      print("StoreKit stream phase \(Date()): request cleanup")
+      session.clearTransactions()
+      print("StoreKit stream phase \(Date()): cleanup request returned")
+    }
 
+    print("StoreKit stream phase \(Date()): create unfinished monthly purchase")
     _ = try await session.buyProduct(identifier: GraceCommerceCatalog.monthlyProductID)
+    print("StoreKit stream phase \(Date()): inspect unfinished transactions")
 
     var unfinishedProductIDs: Set<String> = []
     for await result in Transaction.unfinished {
@@ -76,20 +83,36 @@ final class StoreKitIntegrationTests: XCTestCase {
     }
     XCTAssertTrue(unfinishedProductIDs.contains(GraceCommerceCatalog.monthlyProductID))
 
+    print("StoreKit stream phase \(Date()): subscribe to client updates")
     let client = StoreKitSubscriptionClient(catalog: GraceCommerceCatalog.catalog)
     let updates = await client.entitlementUpdates()
-    var iterator = updates.makeAsyncIterator()
-    let snapshot = await iterator.next()
+    var snapshot: EntitlementSnapshot?
+    var didReceiveFirstSnapshot = false
+    let receiver = Task { @MainActor in
+      var iterator = updates.makeAsyncIterator()
+      print("StoreKit stream phase \(Date()): await first snapshot")
+      snapshot = await iterator.next()
+      didReceiveFirstSnapshot = true
+      print("StoreKit stream phase \(Date()): first receive returned")
+    }
+    defer { receiver.cancel() }
+    try await waitForStoreKitState("client stream to return its first snapshot", timeout: .seconds(90)) {
+      didReceiveFirstSnapshot
+    }
 
     XCTAssertTrue(
       snapshot?.activeProductIDs.contains(GraceCommerceCatalog.monthlyProductID) == true
     )
 
-    unfinishedProductIDs.removeAll()
-    for await result in Transaction.unfinished {
-      if case .verified(let transaction) = result {
-        unfinishedProductIDs.insert(transaction.productID)
+    print("StoreKit stream phase \(Date()): confirm transaction completion")
+    try await waitForStoreKitState("stream-handled monthly transaction to finish") {
+      unfinishedProductIDs.removeAll()
+      for await result in Transaction.unfinished {
+        if case .verified(let transaction) = result {
+          unfinishedProductIDs.insert(transaction.productID)
+        }
       }
+      return !unfinishedProductIDs.contains(GraceCommerceCatalog.monthlyProductID)
     }
     XCTAssertFalse(unfinishedProductIDs.contains(GraceCommerceCatalog.monthlyProductID))
   }
@@ -233,7 +256,12 @@ final class StoreKitIntegrationTests: XCTestCase {
       catalog: GraceCommerceCatalog.catalog,
       now: { evaluationDate }
     )
-    let entitlements = await client.currentEntitlements()
+    var entitlements = await client.currentEntitlements()
+    try await waitForStoreKitState("repurchased daily pass to use the latest purchase date") {
+      entitlements = await client.currentEntitlements()
+      return entitlements.expirationDates[GraceCommerceCatalog.dailyPassProductID] == expectedExpiration
+        && entitlements.activeProductIDs.contains(GraceCommerceCatalog.dailyPassProductID)
+    }
 
     XCTAssertEqual(
       entitlements.expirationDates[GraceCommerceCatalog.dailyPassProductID],
@@ -281,18 +309,22 @@ final class StoreKitIntegrationTests: XCTestCase {
   @MainActor
   private func waitForStoreKitState(
     _ description: String,
+    timeout: Duration = .seconds(30),
     condition: @MainActor () async -> Bool
   ) async throws {
     let clock = ContinuousClock()
     let started = clock.now
-    let deadline = started.advanced(by: .seconds(30))
-    repeat {
-      if await condition() {
-        print("StoreKit state confirmed after \(started.duration(to: clock.now)): \(description)")
+    let deadline = started.advanced(by: timeout)
+    while clock.now < deadline {
+      let matched = await condition()
+      let observed = clock.now
+      if observed >= deadline { break }
+      if matched {
+        print("StoreKit state confirmed after \(started.duration(to: observed)): \(description)")
         return
       }
       try await clock.sleep(for: .milliseconds(100))
-    } while clock.now < deadline
+    }
     print("StoreKit state timed out after \(started.duration(to: clock.now)): \(description)")
     XCTFail("Timed out waiting for StoreKit state: \(description)")
     throw StoreKitStateWaitError.timedOut
