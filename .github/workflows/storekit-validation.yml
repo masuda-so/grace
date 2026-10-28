@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/storekit-validation.yml'
+      - 'grace/Resources/StoreKit/StoreKit.storekit'
 
 permissions:
   contents: read
