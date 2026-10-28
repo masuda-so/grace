@@ -1,0 +1,67 @@
+name: StoreKit integration validation
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/storekit-validation.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: storekit-validation-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  storekit:
+    name: StoreKit integration on Xcode 27
+    runs-on: xcode-27
+    timeout-minutes: 25
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.1.app/Contents/Developer
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Inspect toolchain and select existing simulator
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          xcodebuild -version | tee artifacts/xcode-version.txt
+          xcrun simctl list devices available -j > artifacts/devices.json
+          python3 - <<'PYTHON'
+          import json, os
+          with open('artifacts/devices.json') as stream:
+              devices = json.load(stream)['devices']
+          candidates = [d for d in devices.get('com.apple.CoreSimulator.SimRuntime.iOS-27-0', [])
+                        if d['name'] == 'iPhone 18 Pro' and d.get('isAvailable')]
+          if len(candidates) != 1:
+              raise SystemExit('Expected one existing iPhone 18 Pro / iOS 27.0; no simulator will be created.')
+          with open(os.environ['GITHUB_ENV'], 'a') as stream:
+              stream.write('SIMULATOR_ID=' + candidates[0]['udid'] + '\n')
+          PYTHON
+      - name: Run local StoreKit integration tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild test \
+            -project grace.xcodeproj \
+            -scheme grace \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
+            -parallel-testing-enabled NO \
+            -maximum-concurrent-test-simulator-destinations 1 \
+            -test-timeouts-enabled YES \
+            -maximum-test-execution-time-allowance 120 \
+            -only-testing:graceTests/StoreKitIntegrationTests \
+            -resultBundlePath artifacts/StoreKitIntegration.xcresult \
+            2>&1 | tee artifacts/storekit-test.log
+      - name: Preserve test evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: grace-storekit-validation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/
+          retention-days: 7
+          if-no-files-found: warn
