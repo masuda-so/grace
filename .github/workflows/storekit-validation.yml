@@ -47,6 +47,7 @@ jobs:
           set -euo pipefail
           xcrun simctl bootstatus "$SIMULATOR_ID" -b 2>&1 | tee artifacts/bootstatus.log
       - name: Verify configured products before purchase scenarios
+        id: products
         timeout-minutes: 10
         shell: bash
         run: |
@@ -62,7 +63,26 @@ jobs:
             -only-testing:graceTests/StoreKitIntegrationTests/testConfiguredProductsLoadWithProductionIdentifiers \
             -resultBundlePath artifacts/ConfiguredProducts.xcresult \
             2>&1 | tee artifacts/configured-products.log
+      - name: Run the unfinished-transaction scenario in isolation
+        id: isolated_unfinished
+        timeout-minutes: 8
+        if: ${{ !cancelled() && steps.products.outcome == 'success' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild test \
+            -project grace.xcodeproj \
+            -scheme grace \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
+            -parallel-testing-enabled NO \
+            -maximum-concurrent-test-simulator-destinations 1 \
+            -test-timeouts-enabled YES \
+            -maximum-test-execution-time-allowance 120 \
+            -only-testing:graceTests/StoreKitIntegrationTests/testEntitlementUpdatesProcessesAndFinishesUnfinishedTransaction \
+            -resultBundlePath artifacts/IsolatedUnfinished.xcresult \
+            2>&1 | tee artifacts/isolated-unfinished.log
       - name: Run local StoreKit integration tests
+        if: ${{ !cancelled() && steps.products.outcome == 'success' }}
         shell: bash
         run: |
           set -euo pipefail
