@@ -52,11 +52,11 @@ final class AppEnvironment {
   }
 
   /// Starts transaction monitoring and loads the initial assistant and StoreKit state.
-  func start() async {
+  func start(monitorTransactions: Bool = true) async {
     hasLoadedInitialState = false
     defer { hasLoadedInitialState = true }
 
-    if entitlementTask == nil {
+    if monitorTransactions && entitlementTask == nil {
       startEntitlementMonitor()
     }
 

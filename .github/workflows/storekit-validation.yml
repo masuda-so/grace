@@ -8,6 +8,9 @@ on:
       - '.github/workflows/storekit-validation.yml'
       - 'grace/Resources/StoreKit/StoreKit.storekit'
       - 'graceTests/Integration/StoreKitIntegrationTests.swift'
+      - 'grace/App/GraceApp.swift'
+      - 'grace/App/General/AppEnvironment.swift'
+      - 'grace.xcodeproj/xcshareddata/xcschemes/grace.xcscheme'
 
 permissions:
   contents: read
