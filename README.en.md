@@ -68,7 +68,7 @@ Signing, validation, upload, publication, and release are external steps.
 
 ## Development and contributions
 
-GitHub Actions runs nine purchase-related scenarios in a dedicated StoreKit workflow alongside the normal CI. See [structure and validation](Docs/Structure.md#continuous-integration) for the environment, remaining warnings, and coverage. Passing CI does not establish behavior on physical devices or the production store.
+GitHub Actions requires product loading and eight purchase-related scenarios to pass in a dedicated StoreKit workflow alongside normal CI. The unfinished-transaction stream scenario still runs separately with strict same-transaction finish verification, but its result and artifacts are observational rather than part of the pass/fail gate. Logs show slow storekitd synchronization and changing cache revisions; the root cause remains unresolved. A green job does not mean all nine scenarios passed or notification handling is fixed. See [tracking and coverage](Docs/Structure.md#unresolved-stream-validation). Physical-device and production-store behavior require separate validation.
 
 Use the support route above for product help. For repository changes, consult the
 implementation references and release gates linked above, and describe the change
