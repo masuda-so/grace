@@ -93,22 +93,98 @@ separate requested change.
 - [Swift runtime fix for the task-local marker](https://github.com/swiftlang/swift/commit/29245e4)
 - [SE-0371 isolated synchronous deinit](https://github.com/swiftlang/swift-evolution/blob/main/proposals/0371-isolated-synchronous-deinit.md)
 - [XCTest execution time allowance](https://developer.apple.com/documentation/xctest/xctestcase/executiontimeallowance)
-- [StoreKit Test from the command line (FB22237318)](https://developer.apple.com/forums/thread/826971)
+- [StoreKit Test](https://developer.apple.com/documentation/storekittest)
+- [Transaction updates](https://developer.apple.com/documentation/storekit/transaction/updates)
+- [Xcode 27 hosted image](https://github.com/actions/runner-images/blob/main/images/macos/xcode-27-arm64-Readme.md)
+- [Historical command-line report (FB22237318)](https://developer.apple.com/forums/thread/826971)
 
 Grace, Still, Ukiyo, Vault, and Weave use identical workflow content apart
 from each app's test target name. The upstream template selects the default
 scheme and an available iPhone simulator, then builds for testing and tests
 without rebuilding on `macos-latest`.
-On the hosted runner, `StoreKitIntegrationTests` fail. `SKTestSession`
-cannot load the StoreKit configuration when tests run from the `xcodebuild`
-command line (`SKInternalErrorDomain Code=3`), which Apple tracks as
-FB22237318 with no workaround; purchases report `notEntitled`, and the purchase
-in `testAskToBuyReturnsPendingPurchaseOutcome` never returns. The workflow
-therefore passes `-skip-testing:graceTests/StoreKitIntegrationTests`, so hosted
-CI does not run that class at all. Run it locally in Xcode before release.
-Remove the flag once `macos-latest` ships an Xcode whose StoreKit test session
-works from the command line, and confirm by running the class on the runner.
-Physical-device validation remains deferred.
+The normal workflow currently excludes `graceTests/StoreKitIntegrationTests`.
+The separate `.github/workflows/storekit-validation.yml` runs that class on
+GitHub's `xcode-27` hosted image with Xcode 27.1 and an existing iPhone 18 Pro /
+iOS 27.0 simulator. It checks product loading first, runs the unfinished-transaction
+scenario in isolation for observation, then runs the other eight scenarios serially.
+Product loading and all eight scenarios are required to pass. Only the isolated
+stream step uses continue-on-error; its actual steps.outcome and result bundle
+remain visible in the job summary and artifacts. No XCTest assertion or timeout
+is relaxed, and no XCTSkip is added. Each stage has its own result bundle.
+The eight required methods are explicitly selected with only-testing; the result
+summary must contain exactly eight passed tests and no failures or skips. Update
+this explicit list when adding or renaming purchase tests; the count check alone
+cannot discover a new method omitted from that list.
+Evidence is kept for seven days. It uses
+read-only repository permissions and no App Store Connect credentials. This is
+a project workflow composed from official tools, not an unchanged starter
+workflow. The `xcode-27` image is a public preview.
+
+The dedicated workflow runs for pull requests targeting `main` without file-path
+filters, so changes to catalogs, purchase code, shared types, or project settings
+do not bypass it. Documentation-only PRs also run it. `workflow_dispatch` remains
+available once the workflow exists on the default branch. The existing normal
+CI check name and repository rules remain unchanged; the StoreKit check is not
+yet a required status check in the ruleset.
+
+Investigation on 2026-10-28 and 2026-10-29 established separate findings:
+
+- Configuration: `storekitd` rejected a subscription-group localization that
+  lacked `description`. The approved configuration supplies `displayName` and
+  `description`; the decoding error disappeared after that correction.
+- Test isolation: the host app and the test client could both consume transaction
+  updates. The scheme's Test action passes
+  `--disable-test-host-storekit-monitor` and the Debug host omits automatic
+  monitoring. The test's client still exercises the real StoreKit APIs. This
+  isolates competing consumers; it does not prove they caused every prior
+  failure or eliminate every StoreKit read by the host.
+- Observed timing: transaction and subscription-status synchronization in
+  `storekitd` was slow, and cache revisions changed during tests. In Ukiyo's
+  instrumented run, both producer Tasks started promptly, but the first snapshot
+  took 44.468 seconds. The preceding run timed out at 90 seconds. These are
+  observations in the hosted test environment, not an Apple-confirmed diagnosis.
+
+The unfinished-transaction test now tracks the same Transaction.id and requires
+both a recorded return from the real finish() call in the client and absence
+from unfinished. Its injected completion closure calls the real StoreKit API;
+this is project-specific test instrumentation, not an Apple-provided template.
+The default client closure also calls finish(). The stricter test does not fix
+notification latency, and these new conditions need their own runtime evidence.
+
+All five apps have a historical nine-pass run under the earlier assertions.
+Each result applies to the tested commit and environment; it does not establish
+repeatable timing or normal-launch coverage. See the [recorded run](https://github.com/masuda-so/grace/actions/runs/40802979683).
+The state-wait limits remain 30 seconds and 90 seconds for the first stream
+snapshot. These limits do not interrupt an arbitrary suspended StoreKit call;
+XCTest's test-execution limits provide a separate bound. No extra retries or
+longer waits are introduced to turn intermittent failures into passes.
+
+Two runtime warnings remain in the purchase-success and Ask to Buy tests because
+those tests do not own a transaction-updates observer. A follow-up can add a
+read-only observer with asynchronous teardown, without letting that observer
+finish the transaction being tested. Normal-launch monitoring and physical-device
+behavior remain separate validation tasks. The normal CI exclusion is retained
+until equivalent StoreKit coverage has been validated on its runner; it must not
+be interpreted as a general claim that StoreKit testing is unavailable from the
+command line. The forum report FB22237318 is historical context, not proof that
+this repository has the same issue.
+
+### Unresolved stream validation
+
+The stream scenario remains executable but is temporarily outside the dedicated
+CI pass/fail gate. This is a coverage limitation, not a fix for the observed
+delays or a claim that all nine scenarios pass. The [latest strict comparison](https://github.com/masuda-so/grace/actions/runs/40830985698)
+recorded isolated pass/fail 0/1
+and full-class pass/fail 9/0 before this policy.
+Logs show slow storekitd synchronization and changing cache revisions; the root
+cause and the effects of test order, prior tests, and app behavior remain unresolved.
+
+Track this limitation here until a validated fix and repeated isolated/full-class
+evidence justify restoring the stream to the gate. Do not infer stream correctness
+from a green eight-scenario job. continue-on-error covers the entire isolated step,
+so a timeout or execution failure also needs inspection; a missing result is not a
+pass. The original assertions, real finish() call, and 30/90-second state-wait
+deadlines remain unchanged. Normal CI keeps its existing class-wide exclusion.
 
 <details>
 <summary>GitHub starter workflow license</summary>
