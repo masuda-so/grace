@@ -33,6 +33,8 @@ The assistant requires active Pro access and uses Apple Foundation Models on sup
 - `llc.ether.grace.pro.monthly`: auto-renewable monthly plan.
 - `llc.ether.grace.pro.yearly`: auto-renewable yearly plan.
 
+The Pro product list waits for the initial entitlement check. While a Daily Pass is active, that pass is excluded from purchase options and returns after it expires. Purchases can be restored from Pro and Settings even when the assistant is unavailable.
+
 The Daily Pass never renews automatically. App Store Connect products and pricing
 must be configured and reviewed before these plans can be sold.
 

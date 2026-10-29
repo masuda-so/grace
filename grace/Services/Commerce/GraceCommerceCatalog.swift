@@ -15,6 +15,11 @@ extension ProductID {
     ProductID.subscriptionYearly.rawValue,
   ]
   nonisolated static let all = nonRenewables + subscriptions
+
+  /// Hides the non-renewing pass while its current access period is active.
+  nonisolated static func offeredProductIDs(dailyPassIsActive: Bool) -> [String] {
+    dailyPassIsActive ? subscriptions : all
+  }
 }
 
 /// Defines the StoreKit products and access durations sold by Grace.
