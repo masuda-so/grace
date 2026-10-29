@@ -5,15 +5,20 @@ import StoreKit
 actor StoreKitSubscriptionClient: SubscriptionClient {
   private let catalog: SubscriptionCatalog
   private let now: @Sendable () -> Date
+  private let finishTransaction: @Sendable (Transaction) async -> Void
   private var productsByID: [String: Product] = [:]
 
-  /// Creates a StoreKit client with an injectable wall clock for entitlement checks.
+  /// Creates a StoreKit client with injectable clock and transaction completion.
   init(
     catalog: SubscriptionCatalog,
-    now: @escaping @Sendable () -> Date = Date.init
+    now: @escaping @Sendable () -> Date = Date.init,
+    finishTransaction: @escaping @Sendable (Transaction) async -> Void = {
+      await $0.finish()
+    }
   ) {
     self.catalog = catalog
     self.now = now
+    self.finishTransaction = finishTransaction
   }
 
   func loadProducts() async throws -> [SubscriptionProduct] {
@@ -49,7 +54,7 @@ actor StoreKitSubscriptionClient: SubscriptionClient {
       return try await Self.purchaseOutcome(from: result) { verification in
         let transaction = try Self.verifiedValue(from: verification)
         let entitlements = await self.currentEntitlements()
-        await transaction.finish()
+        await self.finishTransaction(transaction)
         return .purchased(entitlements)
       }
     } catch is CancellationError {
@@ -174,7 +179,7 @@ actor StoreKitSubscriptionClient: SubscriptionClient {
     }
 
     let entitlements = await currentEntitlements()
-    await transaction.finish()
+    await self.finishTransaction(transaction)
     return entitlements
   }
 
