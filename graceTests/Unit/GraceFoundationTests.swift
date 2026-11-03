@@ -44,6 +44,28 @@ final class GraceFoundationTests: XCTestCase {
     )
   }
 
+  func testDailyPassPurchaseOptionsFollowVerifiedAccessAtExpiration() {
+    let catalog = GraceCommerceCatalog.catalog
+    let dailyPassID = GraceCommerceCatalog.dailyPassProductID
+    let expiration = Date(timeIntervalSince1970: 100_000)
+    let entitlements = EntitlementSnapshot(
+      activeProductIDs: [dailyPassID],
+      expirationDates: [dailyPassID: expiration]
+    )
+
+    XCTAssertEqual(ProductID.offeredProductIDs(dailyPassIsActive: false), ProductID.all)
+    for offset: TimeInterval in [-1, 0, 1] {
+      let active = entitlements.isActive(
+        productID: dailyPassID,
+        in: catalog,
+        at: expiration.addingTimeInterval(offset)
+      )
+      let offered = ProductID.offeredProductIDs(dailyPassIsActive: active)
+      XCTAssertEqual(offered.contains(dailyPassID), offset >= 0)
+      XCTAssertTrue(Set(ProductID.subscriptions).isSubset(of: Set(offered)))
+    }
+  }
+
   @MainActor
   func testApplicationSectionsRemainDistinct() {
     let sections: Set<AppSection> = [

@@ -29,7 +29,9 @@ struct PaywallView: View {
             .multilineTextAlignment(.center)
             .foregroundStyle(.secondary)
 
-          if !environment.isAIAvailable {
+          if !environment.hasLoadedInitialState {
+            ProgressView("Checking…")
+          } else if !environment.isAIAvailable {
             CardView {
               Label(
                 "The on-device assistant is unavailable on this device or for the current language. Paid plans can’t be purchased until it becomes available.",
@@ -38,9 +40,15 @@ struct PaywallView: View {
               .foregroundStyle(.secondary)
             }
           } else {
-            StoreView(ids: ProductID.all)
-              .storeButton(.hidden, for: .cancellation)
-              .storeButton(.visible, for: .restorePurchases)
+            StoreView(
+              ids: ProductID.offeredProductIDs(
+                dailyPassIsActive: environment.isProductActive(
+                  GraceCommerceCatalog.dailyPassProductID
+                )
+              )
+            )
+            .storeButton(.hidden, for: .cancellation)
+            .storeButton(.hidden, for: .restorePurchases)
 
             if let expirationDate = environment.entitlements.expirationDates[
               GraceCommerceCatalog.dailyPassProductID
@@ -52,6 +60,8 @@ struct PaywallView: View {
               .foregroundStyle(environment.product.accent)
             }
           }
+
+          RestorePurchasesButton()
 
           Button("Manage Subscription") {
             isShowingSubscriptionManagement = true
