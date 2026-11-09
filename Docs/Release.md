@@ -5,7 +5,7 @@ set a submission or public-release date. Because the implementation and project
 configuration have changed, all technical checks below must be rerun against the
 current tree before submission.
 
-## v1 scope
+## Implemented v1
 
 - iOS 18 minimum deployment target with iPhone and iPad support.
 - Private local gratitude moments containing a required title, optional note,
@@ -40,19 +40,7 @@ release and compatible SDK/runtime selected for submission.
       privacy manifest, content and icon assets, and absence of test-only
       StoreKit or test-bundle payloads.
 
-## StoreKit and external environment gate
-
-Nine StoreKit Test scenarios remain required: product loading; verified
-purchase and finish; unfinished-transaction processing; restore; Daily Pass
-boundary; Ask to Buy pending; refund revocation; Daily Pass repurchase from the
-latest signed purchase date; and auto-renew cancellation with access through
-expiration. The Daily Pass does not auto-renew or stack.
-
-StoreKit E2E requires a compatible Apple-distributed runtime, physical device,
-or TestFlight/App Store Connect products. Record the final environment and any
-skipped scenario when the current tree is tested.
-
-## Human and external release gate
+## App Store submission gates
 
 - Confirm whether any prior Grace version shipped with a different SwiftData
   schema or Bundle ID. If so, define/test migration and/or user export/import;
@@ -62,6 +50,14 @@ skipped scenario when the current tree is tested.
 - Create/localize all products, set price/availability/review assets, put Monthly
   and Yearly in one same-level subscription group, and submit first products
   with the app version as required.
+- Nine StoreKit Test scenarios remain required: product loading; verified
+  purchase and finish; unfinished-transaction processing; restore; Daily Pass
+  boundary; Ask to Buy pending; refund revocation; Daily Pass repurchase from the
+  latest signed purchase date; and auto-renew cancellation with access through
+  expiration. The Daily Pass does not auto-renew or stack.
+- StoreKit E2E requires a compatible Apple-distributed runtime, physical device,
+  or TestFlight/App Store Connect products. Record the final environment and any
+  skipped scenario when the current tree is tested.
 - Publish and anonymously verify the fixed Privacy, Terms, and Support URLs.
 - Confirm App Store privacy, age rating, content rights/licenses, encryption/
   export compliance, wellness positioning, regional legal answers, and the
@@ -75,10 +71,18 @@ skipped scenario when the current tree is tested.
 - Complete signed Archive validation, TestFlight, compatible physical-device
   testing, and final human review. Signing/upload/publication remain external.
 
-## Icon decision
+## Icon disposition
 
 Use the current layered `grace/Resources/AppIcon.icon`, whose layers are the
 non-SF-Symbol `grace-back.svg`, `grace-front.svg`, and `grace-overlap.svg`. The final stable Icon Composer must
 render the required iOS appearances and the Archive must contain the compiled
 icon. Inspect masks, appearances, and small sizes on real devices; App Review
 makes the final determination.
+
+## External or human blockers
+
+Only Apple credentials/signing, App Store Connect state, an Apple-compatible
+StoreKit environment, TestFlight/physical-device verification, public legal and
+support URL acceptance, and final legal/content/accessibility/UI judgment may
+remain external. No signing, validation, upload, release, deployment,
+publication, or external message is authorized by this document.

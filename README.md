@@ -32,7 +32,7 @@ Graceは、大切な出来事を文章や写真で記録する、プライベー
 - `llc.ether.grace.pro.monthly`：自動更新の月額プラン。
 - `llc.ether.grace.pro.yearly`：自動更新の年額プラン。
 
-Daily Passは自動更新されません。共有Xcodeスキームは、オフラインの購入テスト用に日英の商品情報を含むローカルStoreKit設定を選択します。販売前にApp Store Connectの商品と価格を設定し、審査を受ける必要があります。
+App Store Connectの商品登録、本番価格、審査用情報の準備は、別途必要なリリース作業です。
 
 ## 導入と使い方
 
