@@ -16,7 +16,7 @@ Grace is a private gratitude journal for recording meaningful notes and photos.
 - Pro
 - Settings
 
-### Journal
+### Core experience
 
 Moments are stored on-device with SwiftData. A moment can contain a required title,
 an optional note, an optional photo, and a creation date. The journal supports
@@ -29,16 +29,12 @@ Grace’s local architecture, Foundation Models assistant, and StoreKit 2 access
 
 The assistant requires active Pro access and uses Apple Foundation Models on supported devices and languages.
 
-- `llc.ether.grace.pro.daily`: non-renewing Daily Pass with 24 hours of access.
+- `llc.ether.grace.pro.daily`: non-renewing 24-hour Daily Pass.
 - `llc.ether.grace.pro.monthly`: auto-renewable monthly plan.
 - `llc.ether.grace.pro.yearly`: auto-renewable yearly plan.
 
-The Daily Pass never renews automatically. App Store Connect products and pricing
-must be configured and reviewed before these plans can be sold.
-
-The shared Xcode scheme selects a local StoreKit configuration with English and
-Japanese product metadata for offline purchase testing. Production product
-records and prices still need to be created in App Store Connect.
+App Store Connect product records, production prices, and review metadata remain
+external release tasks.
 
 ## Getting started and usage
 

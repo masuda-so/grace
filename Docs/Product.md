@@ -10,7 +10,7 @@ Grace is a private gratitude journal for noticing and preserving meaningful mome
 - Pro
 - Settings
 
-## Core journal
+## Core experience
 
 - SwiftData persistence for a title, note, photo, and timestamp.
 - Add, browse, open, and delete moments.

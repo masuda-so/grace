@@ -1,8 +1,8 @@
 # Grace App Store submission record
 
-This is a working submission checklist, not a submission or release date. Every
-technical item must be revalidated against the current tree and final stable
-Xcode toolchain.
+This is a working submission checklist, not a submission or public-release
+date. Every technical item must be revalidated against the current tree and
+final stable Xcode toolchain.
 
 ## App identity
 
@@ -35,7 +35,7 @@ The app points to Privacy and Terms. Deploy all three pages and verify anonymous
 mobile access outside the local network before submission; publication is an
 external action.
 
-## Privacy and local journal data
+## Privacy and data handling
 
 - Grace stores title, note, timestamp, selected prepared image, badges, and
   relationships in local SwiftData. It has no account, analytics/ads, remote
@@ -64,13 +64,6 @@ external action.
 - Supply distinct Grace gratitude-journal screenshots and value copy to address
   guideline 4.3 rather than presenting a family-template duplicate.
 
-## Licensed Apple sample material
-
-Grace incorporates portions of Apple's distributed Grateful Moments sample and
-related Apple samples. Keep the applicable source links, copyright notices, and
-license text in `THIRD_PARTY_NOTICES.md`, and include the used code and assets in
-the final legal/content-rights review. Apple names do not imply endorsement.
-
 ## Icon record
 
 Submit the current layered `grace/Resources/AppIcon.icon`, which uses the
@@ -78,6 +71,13 @@ non-SF-Symbol `grace-back.svg`, `grace-front.svg`, and `grace-overlap.svg` layer
 required sizes and appearances using the final stable toolchain. Apple Developer
 Support case `20000121467132` is historical correspondence; App Review makes the
 final determination.
+
+## Licensed Apple sample material
+
+Grace incorporates portions of Apple's distributed Grateful Moments sample and
+related Apple samples. Keep the applicable source links, copyright notices, and
+license text in `THIRD_PARTY_NOTICES.md`, and include the used code and assets in
+the final legal/content-rights review. Apple names do not imply endorsement.
 
 ## Technical gate
 
@@ -96,8 +96,7 @@ final determination.
 No signing, upload, publication, or external message is performed without
 separate authorization.
 
-## Revalidation record
-
 Record the selected stable Xcode/SDK/runtime, test results, Analyze result,
 Archive identity and contents, and public-URL checks after the current tree is
-revalidated. Do not reuse results or hashes from an earlier revision.
+revalidated. Do not reuse results or hashes from an earlier revision. The
+remaining gates are summarized in [Release.md](Release.md).
