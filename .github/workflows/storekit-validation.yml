@@ -134,7 +134,7 @@ jobs:
             printf '| Product loading | %s | Required |\n' "$PRODUCTS_OUTCOME"
             printf '| Eight scenarios | %s | Required |\n' "$REQUIRED_OUTCOME"
             printf '| Unfinished-transaction stream | %s | Observation only |\n' "$STREAM_OUTCOME"
-            printf '\nThe stream test still runs with its strict assertions. A green job does not establish that the stream passed. See artifacts and Docs/Structure.md#unresolved-stream-validation.\n'
+            printf '\nThe stream test still runs with its strict assertions. A green job does not establish that the stream passed. See artifacts and docs/Structure.md#unresolved-stream-validation.\n'
           } >> "$GITHUB_STEP_SUMMARY"
           if [[ "$STREAM_OUTCOME" != 'success' ]]; then
             printf '::warning::The observational stream step did not succeed; see its actual outcome and artifacts.\n'
