@@ -7,11 +7,11 @@ Grace は 大切な出来事を文章や写真で記録する、プライベー�
 - `grace/App/` — エントリーポイント `GraceApp.swift`、ルート `Navigation/AppRootView.swift`、環境と商品定義（`General/`）、機能ごとの画面（Achievements / Assistant / General / Moments / Navigation / Paywall / Settings）。
 - `grace/Services/` — 画面がプロトコル越しに使う実装（AI / Achievements / Commerce / Data / Photos）。`AIClient` と `SubscriptionClient` が契約で、本番実装とプレビュー・利用不可時の実装を差し替える。
 - `grace/Components/`（複数の機能で使うビュー）、`grace/Models/`（ドメイン型と SwiftData モデル）、`grace/Resources/`（アセット、文字列カタログ、ローカルの StoreKit 設定）、`grace/Supporting Files/`（`PrivacyInfo.xcprivacy`）。
-- `graceTests/Unit/`、`graceTests/Integration/`、`graceTests/Support/`（テストバンドルのリソース参照）。`Docs/` に製品範囲、出どころ、プライバシー、リリースの文書。
+- `graceTests/Unit/`、`graceTests/Integration/`、`graceTests/Support/`（テストバンドルのリソース参照）。`docs/` に製品範囲、出どころ、プライバシー、リリースの文書。
 
 ## ビルド・テスト・開発コマンド
 
-- `xcodebuild build-for-testing -scheme grace -project grace.xcodeproj -destination "platform=iOS Simulator,name=<iPhone>,OS=<iOS>"` — テストを含めてビルドする。通常 CI（`.github/workflows/ci.yml`）は最新の iOS ランタイムにある iPhone を `xcrun xctrace list devices` で選び、`name=` と `OS=` の両方を渡す。
+- `xcodebuild build-for-testing -scheme grace -project grace.xcodeproj -destination "platform=iOS Simulator,name=<iPhone>,OS=<iOS>"` — テストを含めてビルドする。通常 CI（`.github/workflows/ios.yml`）は最新の iOS ランタイムにある iPhone を `xcrun xctrace list devices` で選び、`name=` と `OS=` の両方を渡す。
 - `xcodebuild test-without-building -scheme grace -project grace.xcodeproj -destination "<同じ>" -test-timeouts-enabled YES -skip-testing:graceTests/StoreKitIntegrationTests` — 通常 CI のテスト。StoreKit 統合テストは除外する。
 - StoreKit 専用 CI（`.github/workflows/storekit-validation.yml`、`xcode-27` ランナー、Xcode 27.1）: 商品取得の事前確認 → 必須 8 件 → 観測のみのストリーム 1 件の順に `xcodebuild test -only-testing:graceTests/StoreKitIntegrationTests/<テスト名>` を実行する。必須 8 件だけが合否。
 - `xcrun swift-format lint --strict --recursive grace graceTests` — 整形と文書コメントの検査。
@@ -34,13 +34,15 @@ Grace は 大切な出来事を文章や写真で記録する、プライベー�
 - 初回コミットだけ author と committer の日時をその日の `00:00:00 +0900` に揃える。2 回目以降は実際の日時。
 - AI が内容を書いたコミットには、関わったエージェントごとに GitHub 公式書式のトレーラーを 1 行ずつ付ける: `Co-authored-by: Codex <noreply@openai.com>`、`Co-authored-by: Claude Fable 5.1 <noreply@anthropic.com>`（モデル名は作業したもの）。大文字小文字は公式どおり `Co-authored-by:`。
 - 公開済みの履歴は書き換えない。やむを得ない場合は本人が判断し `--force-with-lease` を使う。
+- 作業は GitHub flow に従う。1 作業ごとに main から、内容が分かる短い名前のブランチを切る（担当や種類を表す接頭辞は付けない）。
+- PR は一つの目的に絞って小さく保ち、提出前に自己レビューと検査を済ませる。取り込みは squash だけ（main には 1 PR＝1 コミット。設定とルールセットで merge と rebase を不許可にしている）。マージ後はブランチを消す。
 - main への変更は PR 経由（直接 push 不可）。PR の題名・説明・レビューコメントは日本語を基本とし、利用者が別の言語を指定した場合はそれを優先する。説明には変更内容と検証結果を書く。通常 CI（Build and Test） が必須チェック。
 - `README.md`（日本語）と `README.en.md`（英語）は冒頭で相互リンクし、5 見出し（概要・主な機能と制約・導入と使い方・サポートと関連資料・開発と貢献）を揃え、仕様・手順・制約の変更は同じ PR で両方を更新する。未実装・未検証の内容を利用可能と書かない。
 
 ## セキュリティと設定の注意
 
 - StoreKit 設定は製品のリソースに含めない。認証情報、API キー、App Store Connect の鍵をリポジトリに置かない。
-- 取り込んだ Apple サンプルの URL・リビジョン・ライセンス・改変点は `Docs/References.md` と `THIRD_PARTY_NOTICES.md` に記録する。サンプルを写したことは、アプリ全体・プライバシー宣言・リリースの適合を保証しない。
+- 取り込んだ Apple サンプルの URL・リビジョン・ライセンス・改変点は `docs/References.md` と `THIRD_PARTY_NOTICES.md` に記録する。サンプルを写したことは、アプリ全体・プライバシー宣言・リリースの適合を保証しない。
 - iOS 18.0 以上、Swift 6.0（`SWIFT_APPROACHABLE_CONCURRENCY` 有効）。実機や本番ストアでの動作は別途検証する。
 
 ## エージェント向けの指示

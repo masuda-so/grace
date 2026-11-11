@@ -15,7 +15,7 @@ resource formats, target membership, and API availability take precedence.
 | `graceTests/Unit/` | Model, service, and focused rendering tests |
 | `graceTests/Integration/` | StoreKit session and localization catalog checks |
 | `graceTests/Support/` | Test-bundle resource lookup |
-| `Docs/` | Product scope, provenance, privacy, and release documentation |
+| `docs/` | Product scope, provenance, privacy, and release documentation |
 
 ## Naming and source ownership
 
@@ -61,7 +61,7 @@ Follow Git's
 
 ## Continuous integration
 
-`.github/workflows/ci.yml` uses GitHub's official
+`.github/workflows/ios.yml` uses GitHub's official
 [ios starter workflow](https://github.com/actions/starter-workflows/blob/e3c451d60f119b71caebf13c98ac45da6e15b4b7/ci/ios.yml).
 The recorded upstream revision is `e3c451d60f119b71caebf13c98ac45da6e15b4b7`.
 The two `$default-branch` placeholders are replaced with `main`, as when

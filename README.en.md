@@ -39,19 +39,19 @@ external release tasks.
 ## Getting started and usage
 
 Open `grace.xcodeproj` in Xcode and select the shared `grace` scheme.
-See [repository structure and verification](Docs/Structure.md) for build and test guidance,
-and [release gates](Docs/Release.md) for device and release requirements.
+See [repository structure and verification](docs/Structure.md) for build and test guidance,
+and [release gates](docs/Release.md) for device and release requirements.
 The local StoreKit configuration is for purchase testing, not proof of production availability.
 
 ## Support and documentation
 
-- [Repository structure and verification](Docs/Structure.md)
-- [Product scope](Docs/Product.md)
-- [Privacy Policy](Docs/Privacy.md)
-- [Terms of Use](Docs/Terms.md)
-- [Implementation references](Docs/References.md)
-- [Release gates](Docs/Release.md)
-- [App Store submission record](Docs/App-Store-Submission.md)
+- [Repository structure and verification](docs/Structure.md)
+- [Product scope](docs/Product.md)
+- [Privacy Policy](docs/Privacy.md)
+- [Terms of Use](docs/Terms.md)
+- [Implementation references](docs/References.md)
+- [Release gates](docs/Release.md)
+- [App Store submission record](docs/App-Store-Submission.md)
 - [Third-party notices](THIRD_PARTY_NOTICES.md)
 
 Published public routes:
@@ -64,7 +64,7 @@ Signing, validation, upload, publication, and release are external steps.
 
 ## Development and contributions
 
-GitHub Actions requires product loading and eight purchase-related scenarios to pass in a dedicated StoreKit workflow alongside normal CI. The unfinished-transaction stream scenario still runs separately with strict same-transaction finish verification, but its result and artifacts are observational rather than part of the pass/fail gate. Logs show slow storekitd synchronization and changing cache revisions; the root cause remains unresolved. A green job does not mean all nine scenarios passed or notification handling is fixed. See [tracking and coverage](Docs/Structure.md#unresolved-stream-validation). Physical-device and production-store behavior require separate validation.
+GitHub Actions requires product loading and eight purchase-related scenarios to pass in a dedicated StoreKit workflow alongside normal CI. The unfinished-transaction stream scenario still runs separately with strict same-transaction finish verification, but its result and artifacts are observational rather than part of the pass/fail gate. Logs show slow storekitd synchronization and changing cache revisions; the root cause remains unresolved. A green job does not mean all nine scenarios passed or notification handling is fixed. See [tracking and coverage](docs/Structure.md#unresolved-stream-validation). Physical-device and production-store behavior require separate validation.
 
 Use the support route above for product help. For repository changes, consult the
 implementation references and release gates linked above, and describe the change
