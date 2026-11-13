@@ -1,17 +1,28 @@
 import SwiftUI
 
 struct StreakView: View {
+  @Environment(\.dynamicTypeSize) private var typeSize
   var numberOfDays: Int
 
   var body: some View {
-    Hexagon(borderColor: .secondary) {
-      VStack(spacing: 0) {
+    if typeSize.isAccessibilitySize {
+      VStack {
         Text("Streak \(Image(systemName: "flame.fill"))")
-          .foregroundStyle(.ember)
-        Text(attributedText)
-          .multilineTextAlignment(.center)
+        Text("^[\(numberOfDays) \nDays](inflect: true)")
       }
-      .font(.callout)
+      .font(.title2)
+      .multilineTextAlignment(.center)
+      .padding()
+    } else {
+      Hexagon(borderColor: .secondary) {
+        VStack(spacing: 0) {
+          Text("Streak \(Image(systemName: "flame.fill"))")
+            .foregroundStyle(.ember)
+          Text(attributedText)
+            .multilineTextAlignment(.center)
+        }
+        .font(.callout)
+      }
     }
   }
 

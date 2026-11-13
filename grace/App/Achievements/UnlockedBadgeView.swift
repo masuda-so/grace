@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct UnlockedBadgeView: View {
+  @Environment(\.dynamicTypeSize) private var typeSize
   var badge: Badge
 
   var body: some View {
@@ -27,9 +28,9 @@ struct UnlockedBadgeView: View {
         }
       }
       .padding()
-      .frame(width: 210)
+      .frame(width: typeSize.isAccessibilitySize ? nil : 210)
       .frame(minHeight: 225)
-      .fixedSize()
+      .fixedSize(horizontal: false, vertical: true)
       .multilineTextAlignment(.leading)
       .foregroundStyle(.white)
       .background(badge.details.color.opacity(0.8))
