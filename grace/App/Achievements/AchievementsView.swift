@@ -2,6 +2,7 @@ import SwiftData
 import SwiftUI
 
 struct AchievementsView: View {
+  @Environment(\.dynamicTypeSize) private var typeSize
   @Query(filter: #Predicate<Badge> { $0.timestamp != nil })
   private var unlockedBadges: [Badge]
 
@@ -18,7 +19,6 @@ struct AchievementsView: View {
       }
       .navigationTitle("Achievements")
     }
-    .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
   }
 
   private var contentStack: some View {
@@ -27,15 +27,23 @@ struct AchievementsView: View {
         .frame(maxWidth: .infinity)
       if !unlockedBadges.isEmpty {
         header("Your Badges")
-        ScrollView(.horizontal) {
-          HStack {
+        if typeSize.isAccessibilitySize {
+          VStack {
             ForEach(sortedUnlockedBadges) { badge in
               UnlockedBadgeView(badge: badge)
             }
           }
+        } else {
+          ScrollView(.horizontal) {
+            HStack {
+              ForEach(sortedUnlockedBadges) { badge in
+                UnlockedBadgeView(badge: badge)
+              }
+            }
+          }
+          .scrollClipDisabled()
+          .scrollIndicators(.hidden)
         }
-        .scrollClipDisabled()
-        .scrollIndicators(.hidden)
       }
       if !lockedBadges.isEmpty {
         header("Locked Badges")
