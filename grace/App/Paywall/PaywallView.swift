@@ -37,6 +37,7 @@ struct PaywallView: View {
               )
               .foregroundStyle(.secondary)
             }
+            RestorePurchasesButton()
           } else {
             StoreView(ids: ProductID.all)
               .storeButton(.hidden, for: .cancellation)

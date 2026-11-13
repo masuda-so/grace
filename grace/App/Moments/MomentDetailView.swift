@@ -24,6 +24,7 @@ struct MomentDetailView: View {
         } label: {
           Image(systemName: "trash")
         }
+        .accessibilityLabel("Delete Moment")
         .confirmationDialog("Delete Moment", isPresented: $showConfirmation) {
           Button("Delete Moment", role: .destructive) {
             deleteMoment()
