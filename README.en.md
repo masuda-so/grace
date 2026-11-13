@@ -71,3 +71,10 @@ implementation references and release gates linked above, and describe the chang
 and its validation in a pull request. PR descriptions and review comments use Japanese by default; an explicit request for another language takes precedence.
 
 See [AGENTS.md](AGENTS.md) for shared repository instructions.
+
+For Debug captures, launch with `--store-capture` to use three fictional moments
+in memory without opening the normal persistent store. Add `--capture-empty`
+for an empty state. Content follows the launch language (Japanese or English).
+This mode is excluded from Release builds. On a physical device, use a development
+build with a separate bundle ID so the existing Grace installation is not replaced.
+Consult the actual execution results to confirm capture and interaction testing.
