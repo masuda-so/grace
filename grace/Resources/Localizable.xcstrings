@@ -263,12 +263,17 @@
       }
     },
     "Add Moment" : {
-      "extractionState" : "stale",
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Moment"
+          }
+        },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "瞬間を追加"
+            "value" : "記録を追加"
           }
         }
       }
@@ -1657,6 +1662,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "記録と選択した写真はこのデバイス内に保存されます。"
+          }
+        }
+      }
+    },
+    "Note (Optional)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Note (Optional)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メモ（任意）"
+          }
+        }
+      }
+    },
+    "Photo (Optional)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Photo (Optional)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写真（任意）"
+          }
+        }
+      }
+    },
+    "The photo could not be loaded. Please choose it again." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The photo could not be loaded. Please choose it again."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写真を読み込めませんでした。もう一度選択してください。"
           }
         }
       }

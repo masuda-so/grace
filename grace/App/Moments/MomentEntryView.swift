@@ -23,7 +23,7 @@ struct MomentEntryView: View {
       .toolbar {
         ToolbarItem(placement: .cancellationAction) {
           Button("Cancel", systemImage: "xmark") {
-            if title.isEmpty, note.isEmpty, imageData == nil {
+            if !hasUnsavedChanges {
               dismiss()
             } else {
               isShowingCancelConfirmation = true
@@ -60,7 +60,7 @@ struct MomentEntryView: View {
               )
             }
           }
-          .disabled(title.isEmpty)
+          .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoadingPhoto)
         }
       }
       .alert(item: $alert) { alert in
@@ -71,42 +71,58 @@ struct MomentEntryView: View {
         )
       }
     }
+    .interactiveDismissDisabled(hasUnsavedChanges)
+  }
+
+  private var hasUnsavedChanges: Bool {
+    !title.isEmpty || !note.isEmpty || photoSelection.imageSelection != nil
+  }
+
+  private var isLoadingPhoto: Bool {
+    if case .loading = photoSelection.imageState { return true }
+    return false
   }
 
   private var photoPicker: some View {
     @Bindable var photoSelection = photoSelection
 
-    return ZStack {
+    return VStack(alignment: .leading, spacing: 12) {
       PhotoSelectionImage(imageState: photoSelection.imageState)
-
+      if case .failure = photoSelection.imageState {
+        Text("The photo could not be loaded. Please choose it again.")
+          .foregroundStyle(.secondary)
+      }
       PhotosPicker(
         selection: $photoSelection.imageSelection,
         matching: .images,
         photoLibrary: .shared()
       ) {
-        Color.clear
-          .contentShape(Rectangle())
+        Label("Choose Photo", systemImage: "photo.badge.plus")
       }
-      .accessibilityLabel("Choose Photo")
       .accessibilityHint("Select a photo to include with this moment.")
     }
-    .clipShape(RoundedRectangle(cornerRadius: 16))
   }
 
   var contentStack: some View {
-    VStack(alignment: .leading) {
-      TextField(text: $title) {
-        Text("Title (Required)")
+    VStack(alignment: .leading, spacing: 20) {
+      VStack(alignment: .leading, spacing: 8) {
+        Text("Title (Required)").font(.headline)
+        TextField("Title (Required)", text: $title, axis: .vertical)
+          .font(.title2)
+          .accessibilityIdentifier("moment-title")
       }
-      .font(.title.bold())
-      .padding(.top, 48)
       Divider()
-
-      TextField("Log your small wins", text: $note, axis: .vertical)
-        .multilineTextAlignment(.leading)
-        .lineLimit(5...Int.max)
-
-      photoPicker
+      VStack(alignment: .leading, spacing: 8) {
+        Text("Note (Optional)").font(.headline)
+        TextField("Log your small wins", text: $note, axis: .vertical)
+          .lineLimit(3...Int.max)
+          .accessibilityIdentifier("moment-note")
+      }
+      Divider()
+      VStack(alignment: .leading, spacing: 8) {
+        Text("Photo (Optional)").font(.headline)
+        photoPicker
+      }
     }
     .padding()
   }
@@ -136,17 +152,11 @@ private struct PhotoSelectionImage: View {
           .frame(height: 250)
           .frame(maxWidth: .infinity)
       case .empty:
-        Image(systemName: "photo.badge.plus.fill")
-          .font(.largeTitle)
-          .frame(height: 250)
-          .frame(maxWidth: .infinity)
-          .background(Color(white: 0.4, opacity: 0.32))
+        EmptyView()
       case .failure:
         Image(systemName: "exclamationmark.triangle.fill")
           .font(.largeTitle)
-          .frame(height: 250)
-          .frame(maxWidth: .infinity)
-          .background(Color(white: 0.4, opacity: 0.32))
+          .foregroundStyle(.secondary)
       }
     }
     .accessibilityHidden(true)
